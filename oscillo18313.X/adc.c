@@ -56,7 +56,8 @@ void adc_analyze(){
 	max = 0;
 	min = 255;
     for(pos = 0; pos < SAMPLE; pos++){
-        adv[pos] += 2; // rounding half up
+        if(adv[pos] < 253) 
+		adv[pos] += 2; // rounding half up
         adv[pos] >>= 2; // Use upper 6 bits
 
         if(adv[pos] > max)
