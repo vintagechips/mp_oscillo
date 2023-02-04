@@ -2,75 +2,75 @@
 
 void i2c_init(){
 #ifdef RA1SCL
-    // RA1(SCL)
-    ANSA1 = 0; // Desable analog
-    TRISA1 = 1; // Set as input
-    WPUA1 = 1; // Week pullup
-    RA1PPS = 24; // Source is SCK/SCL
-    SSP1CLKPPS = 1; // CLK1 in->RA1
+	// RA1(SCL)
+	ANSA1 = 0; // Desable analog
+	TRISA1 = 1; // Set as input
+	WPUA1 = 1; // Week pullup
+	RA1PPS = 24; // Source is SCK/SCL
+	SSP1CLKPPS = 1; // CLK1 in->RA1
 #else
-    // RA1(SCL)
-    ANSA5 = 0; // Desable analog
-    TRISA5 = 1; // Set as input
-    WPUA5 = 1; // Week pullup
-    RA5PPS = 24; // Source is SCK/SCL
-    SSP1CLKPPS = 5; // CLK1 in->RA5
+	// RA1(SCL)
+	ANSA5 = 0; // Desable analog
+	TRISA5 = 1; // Set as input
+	WPUA5 = 1; // Week pullup
+	RA5PPS = 24; // Source is SCK/SCL
+	SSP1CLKPPS = 5; // CLK1 in->RA5
 #endif
 
-    // RA2(SDA)
-    ANSA2 = 0; // Desable analog
-    TRISA2 = 1; // Set as input
-    WPUA2 = 1; // Week pullup
-    RA2PPS = 25; // Source is SDA
-    SSP1DATPPS = 2; // DAT1 in->RA2
+	// RA2(SDA)
+	ANSA2 = 0; // Desable analog
+	TRISA2 = 1; // Set as input
+	WPUA2 = 1; // Week pullup
+	RA2PPS = 25; // Source is SDA
+	SSP1DATPPS = 2; // DAT1 in->RA2
 
-    // I2C Mode
-    SSP1STAT = 0x00; // Clear status
-    SSP1CON1 = 0x08; // I2C Master mode
-    SSP1CON2 = 0x00; // Default I2C mode
+	// I2C Mode
+	SSP1STAT = 0x00; // Clear status
+	SSP1CON1 = 0x08; // I2C Master mode
+	SSP1CON2 = 0x00; // Default I2C mode
 	SSP1ADD  = _XTAL_FREQ / (4 * _I2C_FREQ) - 1; // Set clock
 
-    SSPEN = 1; // I2C enable
+	SSPEN = 1; // I2C enable
 }
 
 void i2c_start(){
-    SEN = 1; // Start condition
-    while(SEN); // Wait for start
+	SEN = 1; // Start condition
+	while(SEN); // Wait for start
 }
 
 void i2c_stop(){
-    PEN = 1; // Stop condition
-    while(PEN); // Wait for Stop
+	PEN = 1; // Stop condition
+	while(PEN); // Wait for Stop
 }
 
 void i2c_write(uint8_t d){
-    SSP1IF = 0; // Clear flag
-    SSP1BUF = d; // Write
-    while(!SSP1IF); // Wait for write done
+	SSP1IF = 0; // Clear flag
+	SSP1BUF = d; // Write
+	while(!SSP1IF); // Wait for write done
 }
 
 void oled_init(){
-    i2c_start();
-    i2c_write(OLED_ADRS); // OLED slave address
-    i2c_write(0x00); // Control byte Co=0, DC=0
-    i2c_write(0x8d); // Set charge pump
-    i2c_write(0x14); // Enable charge pump
-    i2c_write(0x81); // Set Contrast Control
-    i2c_write(0xff); // Max contrast
-    i2c_write(0xc8); // Upside down
-    i2c_write(0xa1); // Left side right
-    i2c_write(0xaf); // Display ON
-    i2c_stop();
+	i2c_start();
+	i2c_write(OLED_ADRS); // OLED slave address
+	i2c_write(0x00); // Control byte Co=0, DC=0
+	i2c_write(0x8d); // Set charge pump
+	i2c_write(0x14); // Enable charge pump
+	i2c_write(0x81); // Set Contrast Control
+	i2c_write(0xff); // Max contrast
+	i2c_write(0xc8); // Upside down
+	i2c_write(0xa1); // Left side right
+	i2c_write(0xaf); // Display ON
+	i2c_stop();
 }
 
 // Display font
 void oled_putch(uint8_t c){
 	if(c < 32 | c > 94)
-        c = 0;
+		c = 0;
 	else
-        c -= 32;
+		c -= 32;
 
-  	c <<= 2;
+	c <<= 2;
 	i2c_write(font[c++]);
 	i2c_write(font[c++]);
 	i2c_write(font[c++]);
@@ -88,165 +88,164 @@ void oled_putk(uint8_t c){
 
 // Display fonts
 void oled_puts(char *s){
-    while(*s)
-        oled_putch(*s++);
+	while(*s)
+		oled_putch(*s++);
 }
 
 // Display 3 decimal digits
 void oled_putn(uint16_t n){
-    uint8_t i;
-    uint8_t c[3];
-    
-    if(n == 0){
-       oled_puts("  0");
-       return;
-    }
-    
-    for(i = 0; (i < 3) && n; i++){
-        c[i] = (n % 10) + 48;
-        n /= 10;
-    }
-    
-    for(; i < 3; i++)
-        c[i] = ' ';
-    
-    while(i--)
-        oled_putch(c[i]);
+	uint8_t i;
+	uint8_t c[3];
+	
+	if(n == 0){
+		oled_puts("  0");
+		return;
+	}
+	
+	for(i = 0; (i < 3) && n; i++){
+		c[i] = (n % 10) + 48;
+		n /= 10;
+	}
+	
+	for(; i < 3; i++)
+		c[i] = ' ';
+	
+	while(i--)
+		oled_putch(c[i]);
 }
 
 // Display decimal #.# form
 void oled_putn_x10(uint16_t n){
-    oled_putch((n / 10 % 10) + 48);
-    oled_putch('.');
-    oled_putch((n % 10) + 48);
+	oled_putch((n / 10 % 10) + 48);
+	oled_putch('.');
+	oled_putch((n % 10) + 48);
 }
 
 // Display decimal with us or ms
 void oled_label_t(uint16_t t){
-    if(t < 1000){
-        oled_putn(t);
-        oled_putk(5); // u
-    } else {
-        t /= 100;
-        oled_putn_x10(t);
-        oled_putk(3); // m
-    }
-    oled_putk(4); // s
-    oled_putch(' ');
+	if(t < 1000){
+		oled_putn(t);
+		oled_putk(5); // u
+	} else {
+		t /= 100;
+		oled_putn_x10(t);
+		oled_putk(3); // m
+	}
+	oled_putk(4); // s
+	oled_putch(' ');
 }
 
 // Display volt
 void oled_label_v(uint8_t n){
-    uint16_t v;
-    
-    oled_putch(':');
-    v = n * 79 / 100;
-    oled_putn_x10(v);
-    oled_puts("V  ");
+	uint16_t v;
+	
+	oled_putch(':');
+	v = n * 79 / 100;
+	oled_putn_x10(v);
+	oled_puts("V  ");
 }
 
 // Draw label area
 void oled_label(){
-    i2c_start();
-    i2c_write(OLED_ADRS); // OLED slave address
-    i2c_write(0x00); // Control byte Co=0, DC=0
-    i2c_write(0x20); // Set memory addressing mode
-    i2c_write(0x00); // Horizontal addressing mode
-    i2c_write(0x21); // Set column address
-    i2c_write(0);    // Column start address 0
-    i2c_write(31);   // Column end address
-    i2c_write(0x22); // Set page address
-    i2c_write(0);    // Page start address 0
-    i2c_write(7);    // Page end address 7d
-    i2c_stop();
+	i2c_start();
+	i2c_write(OLED_ADRS); // OLED slave address
+	i2c_write(0x00); // Control byte Co=0, DC=0
+	i2c_write(0x20); // Set memory addressing mode
+	i2c_write(0x00); // Horizontal addressing mode
+	i2c_write(0x21); // Set column address
+	i2c_write(0);	// Column start address 0
+	i2c_write(31);   // Column end address
+	i2c_write(0x22); // Set page address
+	i2c_write(0);	// Page start address 0
+	i2c_write(7);	// Page end address 7d
+	i2c_stop();
 
-    i2c_start();
-    i2c_write(OLED_ADRS); // OLED slave address
-    i2c_write(0x40); // Control byte Co=0, DC=1
-    oled_puts("OSCILLO ");
-    oled_puts("SCOPE   ");
-    oled_puts("------- ");
+	i2c_start();
+	i2c_write(OLED_ADRS); // OLED slave address
+	i2c_write(0x40); // Control byte Co=0, DC=1
+	oled_puts("OSCILLO ");
+	oled_puts("SCOPE   ");
+	oled_puts("------- ");
 
-    oled_puts("X:");
-    oled_label_t(us * 24);
-    
-    oled_puts("Y:1.0V  ");
+	oled_puts("X:");
+	oled_label_t(us * 24);
+	
+	oled_puts("Y:1.0V  ");
 
-    oled_putk(0); // Kigo max
-    oled_label_v(max);
+	oled_putk(0); // Kigo max
+	oled_label_v(max);
 
-    oled_putk(1); // Kigo min
-    oled_label_v(min);
+	oled_putk(1); // Kigo min
+	oled_label_v(min);
 
-    oled_puts("P:");
-    oled_label_t((uint16_t)pod * us);
-    i2c_stop();
+	oled_puts("P:");
+	oled_label_t((uint16_t)pod * us);
+	i2c_stop();
 }
 
 // Draw graph area
 void oled_draw(){
-    uint8_t x;
-    uint8_t y;
-    uint8_t i;
-    uint8_t bmp;
-    uint8_t top, bot;
+	uint8_t seg;
+	uint8_t page;
+	uint8_t i;
+	uint8_t com;
+	uint8_t bmp;
+	uint8_t top, bot;
+	uint8_t vline;
+	uint8_t hline;
+	
+	i2c_start();
+	i2c_write(OLED_ADRS); // OLED slave address
+	i2c_write(0x00); // Control byte Co=0, DC=0
+	i2c_write(0x20); // Set memory addressing mode
+	i2c_write(0x01); // Virtical addressing mode
+	i2c_write(0x21); // Set column address
+	i2c_write(32);   // Column start address 0
+	i2c_write(127);  // Column end address
+	i2c_write(0x22); // Set page address
+	i2c_write(0);	// Page start address
+	i2c_write(7);	// Page end address
+	i2c_stop();
 
-    i2c_start();
-    i2c_write(OLED_ADRS); // OLED slave address
-    i2c_write(0x00); // Control byte Co=0, DC=0
-    i2c_write(0x20); // Set memory addressing mode
-    i2c_write(0x01); // Virtical addressing mode
-    i2c_write(0x21); // Set column address
-    i2c_write(32);   // Column start address 0
-    i2c_write(127);  // Column end address
-    i2c_write(0x22); // Set page address
-    i2c_write(0);    // Page start address
-    i2c_write(7);    // Page end address
-    i2c_stop();
+	i2c_start();
+	i2c_write(OLED_ADRS); // OLED slave address
+	i2c_write(0x40); // Control byte Co=0, DC=1
 
-    i2c_start();
-    i2c_write(OLED_ADRS); // OLED slave address
-    i2c_write(0x40); // Control byte Co=0, DC=1
+	for(i = 0; i < 8; i++)
+		i2c_write(0x55); // Draw virtual Auxiliary
+	pos++;
+	
+	bmp = 0;
+	for(seg = 1; seg < SCREEN; seg++){ // Each segment
+		vline = (seg % 24 == 0); // Virtical Auxiliary flag
 
-    for(i = 0; i < 8; i++)
-        i2c_write(0x55); // Draw virtual line
+		// max and min
+		top = adv[pos];
+		bot = adv[pos - 1];
+		if(top < bot){
+			top = adv[pos - 1];
+			bot = adv[pos];
+		}
+		pos++;
+		
+		// virtical data line
+		for(page = 0; page < 8; page++) { // Each page
+			for(i = 0; i < 8; i++){
+				com = (63 - page * 8) - i;
+				hline = ((seg & 1) && (com % 12 == 0));
+				bmp >>= 1;
+				if(((com <= top) && (com >= bot)) || hline)
+					bmp |= 0b10000000;
+			};
 
-    for(x = pos + 1; x < pos + SCREEN; x++){ // Each virtual line
+			// Add virtical Auxiliary
+			if(vline)
+				bmp |= 0x55;
 
-        // max and min
-        top = adv[x];
-        bot = adv[x - 1];
-        if(top < bot){
-            top = adv[x - 1];
-            bot = adv[x];
-        }
-
-        // virtical line
-        y = 64;
-        while(y){ //
-            bmp = 0;
-            for(i = 0; i < 8; i++){
-               bmp >>= 1;
-               if((y <= top) && (y >= bot))
-                   bmp |= 0b10000000;
-               
-               // Add horizontal line
-                if(((y % 12) == 3) && (((pos & 1) && (x & 1)) || (((pos & 1) == 0) && ((x & 1) == 0)))){
-                   bmp |= 0b10000000;
-                }
-               y--;
-            };
-
-            // Add virtical line
-            if(((x - pos) % 24) == 0){
-                bmp |= 0x55;
-            }
-
-            i2c_write(bmp); //
-        }
-    };
-
-    i2c_stop();
+			i2c_write(bmp); // Draw 1 page of 1 seg
+		}
+	};
+	i2c_stop();
 }
 
 const uint8_t font[] = {
@@ -319,9 +318,9 @@ const uint8_t font[] = {
 const uint8_t kigo[] = {
 	0x04,0x3e,0x04,0x00, /*  */
 	0x10,0x3e,0x10,0x00, /*  */
-  	0x3e,0x10,0x28,0x00, /* 02 107 k */
-  	0x3c,0x3c,0x38,0x00, /* 03 109 m */
-  	0x28,0x34,0x14,0x00, /* 04 115 s */
+	0x3e,0x10,0x28,0x00, /* 02 107 k */
+	0x3c,0x3c,0x38,0x00, /* 03 109 m */
+	0x28,0x34,0x14,0x00, /* 04 115 s */
 	0x7c,0x20,0x3c,0x00, /* 05 u */
 	0x24,0x34,0x2c,0x00, /* 06 122 z */
 
