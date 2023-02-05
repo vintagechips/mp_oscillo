@@ -4,7 +4,7 @@
 #include "system.h"
 
 uint8_t us;  // Sampling interval(unit us)
-uint8_t pod; // Preod (unit samples)
+uint8_t pod; // Period (unit samples)
 
 #define AUTO 1
 #define WAVE 2
